@@ -11,11 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
 
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --bg:         #050505;
@@ -25,12 +21,28 @@
       --off-white:  #F5F2EA;
     }
 
-    html { height: 100%; }
+    html, body { height: 100%; }
 
     body {
       background-color: var(--bg);
-      color: var(--off-white);
       font-family: 'Raleway', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas background ── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Content layer ── */
+    .page {
+      position: relative;
+      z-index: 1;
       min-height: 100vh;
       min-height: 100svh;
       display: flex;
@@ -38,40 +50,34 @@
       align-items: center;
       justify-content: center;
       padding: 80px 32px;
+      text-align: center;
     }
 
-    /* ── Reveal animation ── */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(18px); }
+      from { opacity: 0; transform: translateY(22px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .page-wrap {
+    .content {
       width: 100%;
-      max-width: 680px;
-      text-align: center;
+      max-width: 700px;
       opacity: 0;
-      animation: fadeUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+      animation: fadeUp 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
     }
 
     /* ── Wordmark ── */
     .wordmark {
-      font-family: 'Raleway', sans-serif;
       font-weight: 300;
-      font-size: clamp(26px, 7.5vw, 66px);
+      font-size: clamp(28px, 7.5vw, 68px);
       letter-spacing: 0.3em;
       word-spacing: 0.48em;
-      color: var(--off-white);
+      color: var(--brass-soft);
       text-transform: uppercase;
       line-height: 1;
-      margin-bottom: 28px;
+      margin-bottom: 30px;
     }
 
-    /*
-      Custom E glyph — three horizontal bars.
-      Inline-block baseline alignment places its bottom
-      at the text baseline; height ≈ Raleway cap-height.
-    */
+    /* Three-bar E glyph */
     .e-glyph {
       display: inline-block;
       width: 0.46em;
@@ -83,31 +89,31 @@
     .e-glyph > span {
       position: absolute;
       left: 0;
+      width: 100%;
       height: 1.5px;
-      background-color: var(--off-white);
+      background-color: var(--brass-soft);
     }
 
-    .e-glyph > span:nth-child(1) { top: 0;   width: 100%; }
-    .e-glyph > span:nth-child(2) { top: 50%; width: 100%; transform: translateY(-50%); }
-    .e-glyph > span:nth-child(3) { bottom: 0; width: 100%; }
+    .e-glyph > span:nth-child(1) { top: 0; }
+    .e-glyph > span:nth-child(2) { top: 50%; transform: translateY(-50%); }
+    .e-glyph > span:nth-child(3) { bottom: 0; }
 
-    /* ── Brass hairline ── */
+    /* ── Divider ── */
     .divider {
       width: 36px;
       height: 1px;
       background-color: var(--brass);
-      margin: 0 auto 20px;
+      margin: 0 auto 22px;
     }
 
     /* ── Tagline ── */
     .tagline {
-      font-family: 'Raleway', sans-serif;
       font-weight: 300;
       font-size: clamp(10px, 1.6vw, 12px);
       letter-spacing: 0.52em;
       color: var(--brass-soft);
       text-transform: uppercase;
-      margin-bottom: 52px;
+      margin-bottom: 22px;
     }
 
     /* ── Main phrase ── */
@@ -118,14 +124,11 @@
       line-height: 1.95;
       color: var(--muted);
       max-width: 520px;
-      margin: 0 auto 64px;
-      letter-spacing: 0.01em;
+      margin: 8px auto 64px;
     }
 
-    /* ── Early access form ── */
-    .form-section {
-      margin-bottom: 60px;
-    }
+    /* ── Form ── */
+    .form-section { margin-bottom: 60px; }
 
     .form-label {
       display: block;
@@ -150,7 +153,7 @@
       -webkit-appearance: none;
       background: transparent;
       border: none;
-      border-bottom: 1px solid #222222;
+      border-bottom: 1px solid #242424;
       padding: 12px 0;
       width: 100%;
       color: var(--off-white);
@@ -161,17 +164,11 @@
       text-align: center;
       outline: none;
       border-radius: 0;
-      transition: border-color 0.3s ease;
+      transition: border-color 0.3s;
     }
 
-    .form-fields input::placeholder {
-      color: #333333;
-      letter-spacing: 0.14em;
-    }
-
-    .form-fields input:focus {
-      border-bottom-color: var(--brass);
-    }
+    .form-fields input::placeholder { color: #333; letter-spacing: 0.14em; }
+    .form-fields input:focus { border-bottom-color: var(--brass); }
 
     .form-btn {
       appearance: none;
@@ -188,14 +185,10 @@
       text-transform: uppercase;
       cursor: pointer;
       border-radius: 0;
-      transition: background-color 0.28s ease, color 0.28s ease;
+      transition: background-color 0.28s, color 0.28s;
     }
 
-    .form-btn:hover {
-      background-color: var(--brass);
-      color: var(--bg);
-    }
-
+    .form-btn:hover { background-color: var(--brass); color: var(--bg); }
     .form-btn:active { opacity: 0.85; }
 
     .success-msg {
@@ -224,55 +217,156 @@
       text-transform: uppercase;
     }
 
-    /* ── Responsive ── */
     @media (max-width: 480px) {
-      body {
-        padding: 60px 24px;
-      }
-
-      .tagline {
-        letter-spacing: 0.36em;
-      }
-
-      .form-btn {
-        padding: 13px 36px;
-        letter-spacing: 0.36em;
-      }
+      .page { padding: 60px 24px; }
+      .tagline { letter-spacing: 0.36em; }
+      .form-btn { padding: 13px 36px; letter-spacing: 0.36em; }
     }
   </style>
 </head>
 <body>
 
-  <div class="page-wrap">
+  <canvas id="bg"></canvas>
 
-    <h1 class="wordmark">HUMAN&nbsp;FORM<span class="e-glyph" aria-label="E"><span></span><span></span><span></span></span></h1>
+  <div class="page">
+    <div class="content">
 
-    <div class="divider"></div>
+      <h1 class="wordmark">HUMAN&nbsp;FORM<span class="e-glyph" aria-label="E"><span></span><span></span><span></span></span></h1>
 
-    <p class="tagline">Forme Your Future</p>
+      <div class="divider"></div>
+      <p class="tagline">Forme Your Future</p>
+      <div class="divider"></div>
 
-    <div class="divider"></div>
+      <p class="phrase">Advanced diagnostics, preventative medicine, and precision&nbsp;optimization&nbsp;&mdash; engineered to build the highest form of&nbsp;yourself.</p>
 
-    <p class="phrase">Advanced diagnostics, preventative medicine, and precision&nbsp;optimization&nbsp;&mdash; engineered to build the highest form of&nbsp;yourself.</p>
+      <div class="form-section">
+        <span class="form-label">Request Early Access</span>
+        <form class="form-fields" id="accessForm" novalidate>
+          <input type="text"  name="name"  placeholder="Name"  autocomplete="name">
+          <input type="email" name="email" placeholder="Email" autocomplete="email">
+          <input type="tel"   name="phone" placeholder="Phone" autocomplete="tel">
+          <button type="submit" class="form-btn">Notify Me</button>
+        </form>
+        <p class="success-msg" id="successMsg">Thank you. We will be in touch.</p>
+      </div>
 
-    <div class="form-section">
-      <span class="form-label">Request Early Access</span>
-      <form class="form-fields" id="accessForm" novalidate>
-        <input type="text"  name="name"  placeholder="Name"  autocomplete="name">
-        <input type="email" name="email" placeholder="Email" autocomplete="email">
-        <input type="tel"   name="phone" placeholder="Phone" autocomplete="tel">
-        <button type="submit" class="form-btn">Notify Me</button>
-      </form>
-      <p class="success-msg" id="successMsg">Thank you. We will be in touch.</p>
+      <div class="footer-tick"></div>
+      <p class="coming-soon">Private Longevity Clinic&nbsp;&mdash;&nbsp;Coming Soon</p>
+
     </div>
-
-    <div class="footer-tick"></div>
-    <p class="coming-soon">Private Longevity Clinic&nbsp;&mdash;&nbsp;Coming Soon</p>
-
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    document.getElementById('accessForm').addEventListener('submit', function (e) {
+    /* ─────────────────────────────────────────────
+       DNA Double Helix — Three.js background
+    ───────────────────────────────────────────── */
+    const canvas   = document.getElementById('bg');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 26);
+    camera.lookAt(0, 0, 0);
+
+    /* ── Helix parameters ── */
+    const RADIUS = 3.0;
+    const HEIGHT = 44;
+    const TURNS  = 5;
+    const SEG    = TURNS * 60;
+
+    const C_STRAND = new THREE.Color(0xB58A3A);
+    const C_SOFT   = new THREE.Color(0xC9A45C);
+    const C_NODE   = new THREE.Color(0xD4B070);
+
+    function helixPt(i, phase) {
+      const a = (i / SEG) * TURNS * Math.PI * 2 + phase;
+      return new THREE.Vector3(
+        RADIUS * Math.cos(a),
+        (i / SEG) * HEIGHT - HEIGHT / 2,
+        RADIUS * Math.sin(a)
+      );
+    }
+
+    const dna = new THREE.Group();
+
+    /* Helical tube strands */
+    function addStrand(phase) {
+      const pts = [];
+      for (let i = 0; i <= SEG; i++) pts.push(helixPt(i, phase));
+      const geo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), SEG * 2, 0.048, 8, false);
+      const mat = new THREE.MeshBasicMaterial({ color: C_STRAND, transparent: true, opacity: 0.22 });
+      dna.add(new THREE.Mesh(geo, mat));
+    }
+    addStrand(0);
+    addStrand(Math.PI);
+
+    /* Base pair rungs */
+    const bpVerts = [];
+    for (let i = 0; i <= SEG; i += 4) {
+      const a = helixPt(i, 0), b = helixPt(i, Math.PI);
+      bpVerts.push(a.x, a.y, a.z, b.x, b.y, b.z);
+    }
+    const bpGeo = new THREE.BufferGeometry();
+    bpGeo.setAttribute('position', new THREE.Float32BufferAttribute(bpVerts, 3));
+    dna.add(new THREE.LineSegments(bpGeo,
+      new THREE.LineBasicMaterial({ color: C_SOFT, transparent: true, opacity: 0.10 })));
+
+    /* Node spheres (instanced) */
+    const NODE_STEP  = 4;
+    const nodeCount  = (Math.floor(SEG / NODE_STEP) + 1) * 2;
+    const sGeo = new THREE.SphereGeometry(0.12, 8, 6);
+    const sMat = new THREE.MeshBasicMaterial({ color: C_NODE, transparent: true, opacity: 0.55 });
+    const nodes  = new THREE.InstancedMesh(sGeo, sMat, nodeCount);
+    const dummy  = new THREE.Object3D();
+    let ni = 0;
+    for (let i = 0; i <= SEG; i += NODE_STEP) {
+      for (const ph of [0, Math.PI]) {
+        dummy.position.copy(helixPt(i, ph));
+        dummy.updateMatrix();
+        if (ni < nodeCount) nodes.setMatrixAt(ni++, dummy.matrix);
+      }
+    }
+    nodes.instanceMatrix.needsUpdate = true;
+    dna.add(nodes);
+
+    scene.add(dna);
+
+    /* Ambient dust particles */
+    const DUST = 900;
+    const dPos = new Float32Array(DUST * 3);
+    for (let i = 0; i < DUST; i++) {
+      dPos[i*3]   = (Math.random() - 0.5) * 50;
+      dPos[i*3+1] = (Math.random() - 0.5) * 70;
+      dPos[i*3+2] = (Math.random() - 0.5) * 35;
+    }
+    const dGeo = new THREE.BufferGeometry();
+    dGeo.setAttribute('position', new THREE.Float32BufferAttribute(dPos, 3));
+    scene.add(new THREE.Points(dGeo,
+      new THREE.PointsMaterial({ color: C_STRAND, size: 0.065, transparent: true, opacity: 0.28 })));
+
+    /* ── Render loop ── */
+    let tick = 0;
+    (function loop() {
+      requestAnimationFrame(loop);
+      tick += 0.0035;
+      dna.rotation.y = tick;
+      camera.position.y = Math.sin(tick * 0.16) * 1.4;
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    })();
+
+    /* ── Resize ── */
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    /* ── Form ── */
+    document.getElementById('accessForm').addEventListener('submit', function(e) {
       e.preventDefault();
       this.style.display = 'none';
       document.getElementById('successMsg').style.display = 'block';
