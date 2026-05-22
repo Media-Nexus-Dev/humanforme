@@ -60,10 +60,9 @@
       width: 100%;
       max-width: 700px;
       opacity: 0;
-      animation: fadeUp 1.8s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+      animation: fadeUp 2s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
     }
 
-    /* ── Wordmark ── */
     .wordmark {
       font-weight: 300;
       font-size: clamp(28px, 7.5vw, 68px);
@@ -75,28 +74,6 @@
       margin-bottom: 30px;
     }
 
-    /* Three-bar E — all bars full width, equal spacing */
-    .e-glyph {
-      display: inline-block;
-      width: 0.46em;
-      height: 0.71em;
-      position: relative;
-      vertical-align: baseline;
-    }
-
-    .e-glyph > span {
-      position: absolute;
-      left: 0;
-      width: 100%;
-      height: 1.5px;
-      background-color: var(--brass-soft);
-    }
-
-    .e-glyph > span:nth-child(1) { top: 0; }
-    .e-glyph > span:nth-child(2) { top: 50%; transform: translateY(-50%); }
-    .e-glyph > span:nth-child(3) { bottom: 0; }
-
-    /* ── Dividers ── */
     .divider {
       width: 36px;
       height: 1px;
@@ -104,7 +81,6 @@
       margin: 0 auto 22px;
     }
 
-    /* ── Tagline ── */
     .tagline {
       font-weight: 300;
       font-size: clamp(10px, 1.6vw, 12px);
@@ -114,7 +90,6 @@
       margin-bottom: 22px;
     }
 
-    /* ── Phrase ── */
     .phrase {
       font-family: 'Cormorant Garamond', serif;
       font-weight: 300;
@@ -125,7 +100,6 @@
       margin: 8px auto 64px;
     }
 
-    /* ── Form ── */
     .form-section { margin-bottom: 60px; }
 
     .form-label {
@@ -199,7 +173,6 @@
       padding: 12px 0 4px;
     }
 
-    /* ── Footer ── */
     .footer-tick {
       width: 1px;
       height: 24px;
@@ -256,9 +229,11 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    /* ═══════════════════════════════════════════════
-       VOXEL HUMAN — Satin Brass Pixel Figure
-    ═══════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════
+       HUMAN CONSTELLATION — Brass Node Network
+       Anatomical landmarks → glowing nodes + edges
+       Traveling signal pulses along nerve pathways
+    ═══════════════════════════════════════════════════ */
 
     const canvas   = document.getElementById('bg');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
@@ -267,156 +242,264 @@
 
     const scene  = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(2, 1, 20);
+    camera.position.set(1.5, 0.5, 22);
     camera.lookAt(0, 0, 0);
 
-    /* ── Lighting for satin-brass shading ── */
-    scene.add(new THREE.AmbientLight(0xffffff, 0.42));
+    /* ── Soft ambient only — glow comes from sprites ── */
+    scene.add(new THREE.AmbientLight(0xffffff, 0.06));
 
-    const key = new THREE.DirectionalLight(0xD4AA60, 1.3);
-    key.position.set(6, 10, 7);
-    scene.add(key);
+    /* ── Radial glow texture ── */
+    function makeGlowTex() {
+      const c = document.createElement('canvas');
+      c.width = c.height = 128;
+      const ctx = c.getContext('2d');
+      const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+      g.addColorStop(0,    'rgba(252, 230, 155, 1.00)');
+      g.addColorStop(0.10, 'rgba(230, 185,  90, 0.95)');
+      g.addColorStop(0.30, 'rgba(181, 138,  58, 0.55)');
+      g.addColorStop(0.60, 'rgba(150, 105,  30, 0.18)');
+      g.addColorStop(1.00, 'rgba( 80,  55,  10, 0.00)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 128, 128);
+      return new THREE.CanvasTexture(c);
+    }
+    const GLOW_TEX = makeGlowTex();
 
-    const fill = new THREE.DirectionalLight(0x7A5A28, 0.4);
-    fill.position.set(-5, 2, 3);
-    scene.add(fill);
+    /* ════════════════════════════════════════
+       ANATOMICAL NODE MAP
+       [ [x, y, z],  glowRadius ]
+       Body centred at origin, ~14 units tall
+    ════════════════════════════════════════ */
+    const NODES = [
+      /* 00 */ [[  0.00,  6.50,  0.00], 0.90],  // crown
+      /* 01 */ [[ -0.50,  6.15,  0.42], 0.70],  // left temple
+      /* 02 */ [[  0.50,  6.15,  0.42], 0.70],  // right temple
+      /* 03 */ [[  0.00,  5.80,  0.65], 0.65],  // brow centre
+      /* 04 */ [[ -0.42,  5.40,  0.60], 0.60],  // left cheek
+      /* 05 */ [[  0.42,  5.40,  0.60], 0.60],  // right cheek
+      /* 06 */ [[  0.00,  4.90,  0.42], 0.60],  // chin
 
-    const rim = new THREE.DirectionalLight(0xC9A45C, 0.3);
-    rim.position.set(0, -6, -5);
-    scene.add(rim);
+      /* 07 */ [[  0.00,  4.30,  0.00], 0.80],  // neck base
+      /* 08 */ [[  0.00,  3.10,  0.00], 0.78],  // upper thoracic
+      /* 09 */ [[  0.00,  1.60,  0.00], 0.72],  // mid spine
+      /* 10 */ [[  0.00,  0.10,  0.00], 0.72],  // lumbar
+      /* 11 */ [[  0.00, -1.20,  0.00], 0.78],  // sacrum
 
-    /* ══════════════════════════════════════
-       VOXEL BODY DEFINITION
-       Grid spacing S — each integer step = one voxel slot
-       Voxel cube size VS < S so gaps are visible
-    ══════════════════════════════════════ */
-    const S  = 0.65;   // spacing between voxel centres
-    const VS = 0.50;   // physical size of each cube
+      /* 12 */ [[ -2.20,  3.80,  0.00], 0.82],  // left shoulder
+      /* 13 */ [[  2.20,  3.80,  0.00], 0.82],  // right shoulder
+      /* 14 */ [[ -3.10,  2.20,  0.00], 0.72],  // left elbow
+      /* 15 */ [[  3.10,  2.20,  0.00], 0.72],  // right elbow
+      /* 16 */ [[ -3.70,  0.55,  0.00], 0.65],  // left wrist
+      /* 17 */ [[  3.70,  0.55,  0.00], 0.65],  // right wrist
+      /* 18 */ [[ -4.00, -0.20,  0.00], 0.55],  // left hand
+      /* 19 */ [[  4.00, -0.20,  0.00], 0.55],  // right hand
 
-    /*
-      Coordinate system: Y up, X right, Z toward viewer
-      Body is centred at origin (y spans ~−7 to +7)
+      /* 20 */ [[ -1.10,  3.20,  0.52], 0.72],  // left chest
+      /* 21 */ [[  1.10,  3.20,  0.52], 0.72],  // right chest
+      /* 22 */ [[  0.00,  2.30,  0.52], 0.68],  // sternum
+      /* 23 */ [[ -0.85,  1.20,  0.42], 0.64],  // left upper abdomen
+      /* 24 */ [[  0.85,  1.20,  0.42], 0.64],  // right upper abdomen
+      /* 25 */ [[  0.00,  0.00,  0.40], 0.60],  // navel
 
-      Parts: [ [x1,x2], [y1,y2], [z1,z2] ] — inclusive integer ranges
-    */
-    const PARTS = [
-      // ── Head ──────────────────────────────────
-      [[-1, 1], [ 8, 11], [0, 1]],
-
-      // ── Neck ──────────────────────────────────
-      [[-1, 0], [ 6,  7], [0, 0]],
-
-      // ── Shoulders (connects torso to arms) ────
-      [[-4, 3], [ 5,  6], [0, 1]],
-
-      // ── Torso ─────────────────────────────────
-      [[-2, 1], [ 0,  4], [0, 1]],
-
-      // ── Left upper arm ────────────────────────
-      [[-5,-4], [ 1,  5], [0, 0]],
-      // ── Right upper arm ───────────────────────
-      [[ 2, 3], [ 1,  5], [0, 0]],
-
-      // ── Left forearm (angles outward) ─────────
-      [[-6,-4], [-3,  0], [0, 0]],
-      // ── Right forearm ─────────────────────────
-      [[ 2, 4], [-3,  0], [0, 0]],
-
-      // ── Hips ──────────────────────────────────
-      [[-2, 1], [-2, -1], [0, 1]],
-
-      // ── Left upper leg ────────────────────────
-      [[-2,-1], [-6, -3], [0, 1]],
-      // ── Right upper leg ───────────────────────
-      [[ 0, 1], [-6, -3], [0, 1]],
-
-      // ── Left lower leg ────────────────────────
-      [[-2,-1], [-10,-7], [0, 0]],
-      // ── Right lower leg ───────────────────────
-      [[ 0, 1], [-10,-7], [0, 0]],
-
-      // ── Left foot ─────────────────────────────
-      [[-3,-1], [-11,-11],[0, 1]],
-      // ── Right foot ────────────────────────────
-      [[ 0, 2], [-11,-11],[0, 1]],
+      /* 26 */ [[ -1.25, -1.80,  0.00], 0.78],  // left hip
+      /* 27 */ [[  1.25, -1.80,  0.00], 0.78],  // right hip
+      /* 28 */ [[ -1.15, -3.30,  0.00], 0.70],  // left upper thigh
+      /* 29 */ [[  1.15, -3.30,  0.00], 0.70],  // right upper thigh
+      /* 30 */ [[ -1.05, -4.85,  0.00], 0.80],  // left knee
+      /* 31 */ [[  1.05, -4.85,  0.00], 0.80],  // right knee
+      /* 32 */ [[ -0.95, -6.30,  0.00], 0.65],  // left mid shin
+      /* 33 */ [[  0.95, -6.30,  0.00], 0.65],  // right mid shin
+      /* 34 */ [[ -0.85, -7.40,  0.00], 0.75],  // left ankle
+      /* 35 */ [[  0.85, -7.40,  0.00], 0.75],  // right ankle
     ];
 
-    // Expand grid coordinates → world positions (deduplicated)
-    const seen   = new Set();
-    const coords = [];
+    /* ════════════════════════════════════════
+       EDGE MAP  [ nodeA, nodeB ]
+    ════════════════════════════════════════ */
+    const EDGES = [
+      // Head
+      [0, 1], [0, 2], [0, 3],
+      [1, 4], [2, 5],
+      [3, 4], [3, 5],
+      [4, 6], [5, 6],
 
-    for (const [[x1,x2],[y1,y2],[z1,z2]] of PARTS) {
-      for (let x = x1; x <= x2; x++)
-      for (let y = y1; y <= y2; y++)
-      for (let z = z1; z <= z2; z++) {
-        const key = `${x},${y},${z}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          coords.push(x * S, y * S, z * S);
-        }
-      }
-    }
+      // Head → spine
+      [6, 7],
 
-    const N = coords.length / 3;
+      // Spine chain
+      [7, 8], [8, 9], [9, 10], [10, 11],
 
-    /* ── Instanced voxel mesh ── */
-    const voxelGeo = new THREE.BoxGeometry(VS, VS, VS);
-    const voxelMat = new THREE.MeshPhongMaterial({
-      color:     0xB58A3A,
-      emissive:  0x1E1208,
-      specular:  0x5A3C18,
-      shininess: 38,
-      transparent: true,
-      opacity:   0.84,
-    });
+      // Shoulder girdle
+      [7, 12], [7, 13],
+      [8, 12], [8, 13],
+      [12, 13],
 
-    const mesh  = new THREE.InstancedMesh(voxelGeo, voxelMat, N);
-    const dummy = new THREE.Object3D();
+      // Arms
+      [12, 14], [14, 16], [16, 18],
+      [13, 15], [15, 17], [17, 19],
 
-    for (let i = 0; i < N; i++) {
-      dummy.position.set(coords[i*3], coords[i*3+1], coords[i*3+2]);
-      dummy.updateMatrix();
-      mesh.setMatrixAt(i, dummy.matrix);
-    }
-    mesh.instanceMatrix.needsUpdate = true;
+      // Chest / torso web
+      [12, 20], [13, 21],
+      [20, 21],
+      [20, 22], [21, 22],
+      [8, 22],
+      [22, 23], [22, 24],
+      [9, 23],  [9, 24],
+      [23, 24],
+      [23, 25], [24, 25],
+      [10, 25],
 
+      // Pelvis
+      [11, 26], [11, 27],
+      [10, 26], [10, 27],
+      [26, 27],
+
+      // Legs
+      [26, 28], [27, 29],
+      [28, 30], [29, 31],
+      [30, 32], [31, 33],
+      [32, 34], [33, 35],
+    ];
+
+    /* ── Pulse pathway: a curated chain of nodes to travel ── */
+    const PULSE_PATHS = [
+      [0, 7, 8, 22, 10, 11, 26, 28, 30, 32, 34],   // crown → left foot
+      [0, 7, 8, 22, 10, 11, 27, 29, 31, 33, 35],   // crown → right foot
+      [12, 14, 16, 18],                              // left arm
+      [13, 15, 17, 19],                              // right arm
+      [3, 6, 7, 8, 9, 25],                           // face → navel
+      [20, 22, 23, 25, 26, 28, 30],                  // left torso-leg
+      [21, 22, 24, 25, 27, 29, 31],                  // right torso-leg
+    ];
+
+    /* ════════════════════════
+       BUILD SCENE OBJECTS
+    ════════════════════════ */
     const figure = new THREE.Group();
-    figure.add(mesh);
+    figure.position.y = 0.5; // slight upward nudge to visual centre
     scene.add(figure);
 
-    /* ── Ambient dust particles ── */
-    const DUST = 500;
-    const dBuf = new Float32Array(DUST * 3);
-    for (let i = 0; i < DUST; i++) {
-      dBuf[i*3]   = (Math.random() - 0.5) * 28;
-      dBuf[i*3+1] = (Math.random() - 0.5) * 22;
-      dBuf[i*3+2] = (Math.random() - 0.5) * 18;
-    }
-    const dustGeo = new THREE.BufferGeometry();
-    dustGeo.setAttribute('position', new THREE.Float32BufferAttribute(dBuf, 3));
-    scene.add(new THREE.Points(dustGeo,
-      new THREE.PointsMaterial({ color: 0xB58A3A, size: 0.05, transparent: true, opacity: 0.20 })));
+    /* Nodes: glow sprite + hard core */
+    const nodeObjs = NODES.map(([[x, y, z], r], i) => {
+      const pos = new THREE.Vector3(x, y, z);
 
-    /* ── Render loop ── */
+      const spMat = new THREE.SpriteMaterial({
+        map: GLOW_TEX,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        opacity: 0.68,
+      });
+      const sprite = new THREE.Sprite(spMat);
+      sprite.position.copy(pos);
+      sprite.scale.setScalar(r * 2.2);
+      figure.add(sprite);
+
+      const coreGeo = new THREE.SphereGeometry(r * 0.09, 10, 8);
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0xF5E0A0, transparent: true, opacity: 0.95 });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      core.position.copy(pos);
+      figure.add(core);
+
+      return { sprite, core, baseR: r, phase: Math.random() * Math.PI * 2 };
+    });
+
+    /* Edges */
+    EDGES.forEach(([a, b]) => {
+      const geo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(...NODES[a][0]),
+        new THREE.Vector3(...NODES[b][0]),
+      ]);
+      const mat = new THREE.LineBasicMaterial({
+        color: 0xC9A45C,
+        transparent: true,
+        opacity: 0.18,
+      });
+      figure.add(new THREE.Line(geo, mat));
+    });
+
+    /* Traveling signal pulses */
+    const pulses = PULSE_PATHS.map((path, i) => {
+      const spMat = new THREE.SpriteMaterial({
+        map: GLOW_TEX,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        opacity: 0.95,
+      });
+      const sprite = new THREE.Sprite(spMat);
+      sprite.scale.setScalar(0.55);
+      figure.add(sprite);
+      return {
+        sprite,
+        path,
+        phase: (i / PULSE_PATHS.length) * Math.PI * 2,
+        speed: 0.18 + i * 0.022,
+      };
+    });
+
+    /* Deep background: very faint star-like particles */
+    const STARDUST = 280;
+    const starBuf = new Float32Array(STARDUST * 3);
+    for (let i = 0; i < STARDUST; i++) {
+      starBuf[i*3]   = (Math.random() - 0.5) * 50;
+      starBuf[i*3+1] = (Math.random() - 0.5) * 30;
+      starBuf[i*3+2] = -8 - Math.random() * 15;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starBuf, 3));
+    scene.add(new THREE.Points(starGeo,
+      new THREE.PointsMaterial({ color: 0xB58A3A, size: 0.04, transparent: true, opacity: 0.10 })));
+
+    /* ════════════════════════
+       ANIMATION LOOP
+    ════════════════════════ */
     let t = 0;
     (function loop() {
       requestAnimationFrame(loop);
-      t += 0.003;
-      figure.rotation.y = t;
-      // very slow camera float
-      camera.position.y = 1 + Math.sin(t * 0.13) * 0.9;
+      t += 0.006;
+
+      /* Very slow figure rotation */
+      figure.rotation.y = t * 0.22;
+
+      /* Node glow breathe */
+      nodeObjs.forEach(n => {
+        const breathe = 0.82 + 0.18 * Math.sin(t * 1.1 + n.phase);
+        n.sprite.scale.setScalar(n.baseR * 2.2 * breathe);
+        n.sprite.material.opacity = 0.52 + 0.16 * Math.sin(t * 0.85 + n.phase);
+      });
+
+      /* Signal pulses travel along paths */
+      pulses.forEach(p => {
+        const progress = (Math.sin(t * p.speed + p.phase) + 1) / 2; // 0→1→0
+        const seg     = p.path.length - 1;
+        const raw     = progress * seg;
+        const segIdx  = Math.min(Math.floor(raw), seg - 1);
+        const frac    = raw - segIdx;
+        const na = NODES[p.path[segIdx]][0];
+        const nb = NODES[p.path[segIdx + 1]][0];
+        p.sprite.position.set(
+          na[0] + (nb[0] - na[0]) * frac,
+          na[1] + (nb[1] - na[1]) * frac + 0.5,
+          na[2] + (nb[2] - na[2]) * frac,
+        );
+      });
+
+      /* Gentle camera drift */
+      camera.position.y = 0.5 + Math.sin(t * 0.09) * 0.9;
       camera.lookAt(0, 0, 0);
+
       renderer.render(scene, camera);
     })();
 
-    /* ── Resize ── */
+    /* Resize */
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    /* ── Form ── */
+    /* Form */
     document.getElementById('accessForm').addEventListener('submit', function(e) {
       e.preventDefault();
       this.style.display = 'none';
