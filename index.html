@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HUMAN FORME — Private Longevity Clinic</title>
+  <meta name="description" content="Advanced diagnostics, preventative medicine, and precision optimization — engineered to build the highest form of yourself.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;300;400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:         #050505;
+      --brass:      #B58A3A;
+      --brass-soft: #C9A45C;
+      --muted:      #9A9A9A;
+      --off-white:  #F5F2EA;
+    }
+
+    html { height: 100%; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--off-white);
+      font-family: 'Raleway', sans-serif;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 32px;
+    }
+
+    /* ── Reveal animation ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-wrap {
+      width: 100%;
+      max-width: 680px;
+      text-align: center;
+      opacity: 0;
+      animation: fadeUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+    }
+
+    /* ── Wordmark ── */
+    .wordmark {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: clamp(26px, 7.5vw, 66px);
+      letter-spacing: 0.3em;
+      word-spacing: 0.48em;
+      color: var(--off-white);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 28px;
+    }
+
+    /*
+      Custom E glyph — three horizontal bars.
+      Inline-block baseline alignment places its bottom
+      at the text baseline; height ≈ Raleway cap-height.
+    */
+    .e-glyph {
+      display: inline-block;
+      width: 0.46em;
+      height: 0.71em;
+      position: relative;
+      vertical-align: baseline;
+    }
+
+    .e-glyph > span {
+      position: absolute;
+      left: 0;
+      height: 1.5px;
+      background-color: var(--off-white);
+    }
+
+    .e-glyph > span:nth-child(1) { top: 0;   width: 100%; }
+    .e-glyph > span:nth-child(2) { top: 50%; width: 68%;  transform: translateY(-50%); }
+    .e-glyph > span:nth-child(3) { bottom: 0; width: 100%; }
+
+    /* ── Brass hairline ── */
+    .divider {
+      width: 36px;
+      height: 1px;
+      background-color: var(--brass);
+      margin: 0 auto 20px;
+    }
+
+    /* ── Tagline ── */
+    .tagline {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: clamp(10px, 1.6vw, 12px);
+      letter-spacing: 0.52em;
+      color: var(--brass-soft);
+      text-transform: uppercase;
+      margin-bottom: 52px;
+    }
+
+    /* ── Main phrase ── */
+    .phrase {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(16px, 2.6vw, 21px);
+      line-height: 1.95;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 64px;
+      letter-spacing: 0.01em;
+    }
+
+    /* ── Early access form ── */
+    .form-section {
+      margin-bottom: 60px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.48em;
+      color: var(--brass);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .form-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 340px;
+      margin: 0 auto 28px;
+    }
+
+    .form-fields input {
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #222222;
+      padding: 12px 0;
+      width: 100%;
+      color: var(--off-white);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 300;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-align: center;
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-fields input::placeholder {
+      color: #333333;
+      letter-spacing: 0.14em;
+    }
+
+    .form-fields input:focus {
+      border-bottom-color: var(--brass);
+    }
+
+    .form-btn {
+      appearance: none;
+      -webkit-appearance: none;
+      display: inline-block;
+      padding: 14px 48px;
+      background: transparent;
+      border: 1px solid var(--brass);
+      color: var(--brass-soft);
+      font-family: 'Raleway', sans-serif;
+      font-weight: 400;
+      font-size: 10px;
+      letter-spacing: 0.44em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 0;
+      transition: background-color 0.28s ease, color 0.28s ease;
+    }
+
+    .form-btn:hover {
+      background-color: var(--brass);
+      color: var(--bg);
+    }
+
+    .form-btn:active { opacity: 0.85; }
+
+    .success-msg {
+      display: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: 17px;
+      letter-spacing: 0.08em;
+      color: var(--brass-soft);
+      padding: 12px 0 4px;
+    }
+
+    /* ── Footer ── */
+    .footer-tick {
+      width: 1px;
+      height: 24px;
+      background-color: #1d1d1d;
+      margin: 0 auto 18px;
+    }
+
+    .coming-soon {
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.38em;
+      color: #363636;
+      text-transform: uppercase;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      body {
+        padding: 60px 24px;
+      }
+
+      .tagline {
+        letter-spacing: 0.36em;
+      }
+
+      .form-btn {
+        padding: 13px 36px;
+        letter-spacing: 0.36em;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+
+    <h1 class="wordmark">HUMAN&nbsp;FORM<span class="e-glyph" aria-label="E"><span></span><span></span><span></span></span></h1>
+
+    <div class="divider"></div>
+
+    <p class="tagline">Forme Your Future</p>
+
+    <p class="phrase">Advanced diagnostics, preventative medicine, and precision&nbsp;optimization&nbsp;&mdash; engineered to build the highest form of&nbsp;yourself.</p>
+
+    <div class="form-section">
+      <span class="form-label">Request Early Access</span>
+      <form class="form-fields" id="accessForm" novalidate>
+        <input type="text"  name="name"  placeholder="Name"  autocomplete="name">
+        <input type="email" name="email" placeholder="Email" autocomplete="email">
+        <input type="tel"   name="phone" placeholder="Phone" autocomplete="tel">
+        <button type="submit" class="form-btn">Notify Me</button>
+      </form>
+      <p class="success-msg" id="successMsg">Thank you. We will be in touch.</p>
+    </div>
+
+    <div class="footer-tick"></div>
+    <p class="coming-soon">Private Longevity Clinic&nbsp;&mdash;&nbsp;Coming Soon</p>
+
+  </div>
+
+  <script>
+    document.getElementById('accessForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      this.style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    });
+  </script>
+
+</body>
+</html>
